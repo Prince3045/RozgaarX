@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 💼 RozgaarX - Next-Gen On-Demand Service Marketplace
 
 RozgaarX is a robust, production-ready, full-stack marketplace application designed to connect local service providers (workers) with customers in real-time. Built with a focus on high performance, secure role-based operations, and micro-interaction-rich user experience.
@@ -139,3 +140,7 @@ To test the role-based flows immediately, use these default system credentials:
 
 ## 🛡️ License
 This project is open-source and licensed under the [MIT License](LICENSE).
+=======
+# RozgaarX
+RozgaarX is a modern full-stack service marketplace connecting workers with customers in real-time. Built with Spring Boot (Java), React (Vite), MySQL, and Tailwind CSS. Features real-time WebSocket notifications, smart location-based routing, and a secure admin verification portal
+>>>>>>> 1f27c24a0914e1aac24aa1b8eec200db6033cd65
