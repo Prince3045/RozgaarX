@@ -1,34 +1,139 @@
-# Rozgaarx - Professional Service Marketplace
+# 💼 RozgaarX - Next-Gen On-Demand Service Marketplace
 
-This is a full-stack platform built with Spring Boot and React to connect workers with customers in real-time.
+RozgaarX is a robust, production-ready, full-stack marketplace application designed to connect local service providers (workers) with customers in real-time. Built with a focus on high performance, secure role-based operations, and micro-interaction-rich user experience.
 
-## 📁 Repository Overview
+The platform utilizes **Spring Boot** for a high-performance, stateless REST backend, and **React (Vite)** for a modern, responsive, and blazing-fast frontend experience.
 
-- **`/backend`**: Spring Boot application (Port 8081).
-- **`/src`**: React Frontend source code.
-- **`/public`**: Static assets for the frontend.
-- **`/uploads`**: Backend directory for storing worker ID proofs.
+---
 
-## 🚀 Key Features
+## 🚀 Architectural & Feature Highlights
 
-- **Real-time Connectivity**: WebSockets for instant job notifications.
-- **Intelligent Routing**: Location and Category-based job broadcasting.
-- **Admin Control**: Secure dashboard for verifying and approving workers.
-- **Premium UI**: Modern Glassmorphic design with Tailwind CSS.
+### ⚡ Real-Time Instant Job Dispatching
+* **WebSocket Integration**: Engineered with full-duplex communication using SockJS and STOMP protocol.
+* **Intelligent Event Broadcast**: When a customer requests a service, the system instantly broadcasts notifications to all eligible, active workers in the relevant service category and geographical location.
 
-## 🛠️ Setup Instructions
+### 🛡️ Secure Authentication & Authorization
+* **Stateless JWT Security**: Fully integrated Spring Security framework utilizing JSON Web Tokens (JWT) for secure, stateless user sessions.
+* **Role-Based Access Control (RBAC)**: Distinct permissions and application flows for three user personas:
+  * **Customers**: Can post jobs, view local workers, track job histories, and leave reviews.
+  * **Workers**: Can update their service catalog, upload verification documents, and accept or decline real-time job offers.
+  * **Admins**: Access to a secure verification portal to audit, approve, or suspend worker registrations.
 
-1. **Database**: Create a MySQL database named `rozgaarx`.
-2. **Backend**:
+### 📍 Worker Verification & Trust Flow
+* **Verification Pipeline**: Workers submit their identity proofs and certifications upon registration.
+* **Document Audit**: Files are securely handled, and admins can review candidates to maintain high marketplace standards.
+
+### 🎨 Stunning Visual Design
+* **Glassmorphic UI**: Styled using Tailwind CSS to provide a clean, glassmorphic look.
+* **Micro-Animations**: Hover states, interactive transitions, and responsive grid layouts designed to delight users.
+
+---
+
+## 🛠️ Tech Stack & Dependencies
+
+### Frontend (React Ecosystem)
+* **Core Framework**: React 18 (Vite-powered for rapid hot module replacement)
+* **Styling**: Tailwind CSS, PostCSS (Glassmorphism & premium typography)
+* **HTTP Client**: Axios (configured with interceptors for seamless JWT attachment)
+* **Real-time Engine**: SockJS-Client + StompJS
+
+### Backend (Spring Boot Core)
+* **Framework**: Spring Boot (Java 17+)
+* **Security**: Spring Security, JWT (JJWT Library)
+* **Persistence Layer**: Spring Data JPA, Hibernate ORM
+* **Real-time Messaging**: Spring WebSocket Message Broker
+* **Database**: MySQL (optimized indexing for location/category-based queries)
+
+---
+
+## 📁 Repository Structure
+
+```
+Rozgaarx/
+├── backend/                       # Spring Boot Enterprise Application
+│   ├── src/main/java/             # Java source code (MVC structure)
+│   │   └── com/rozgaarx/backend/
+│   │       ├── controller/        # REST Controllers (API entrypoints)
+│   │       ├── entity/            # JPA Data Entities (MySQL Schemas)
+│   │       ├── repository/        # Spring Data Repositories
+│   │       ├── security/          # Spring Security & JWT filters
+│   │       └── payload/           # Request/Response DTO models
+│   ├── build.gradle               # Backend dependency configurations
+│   └── uploads/                   # Secure storage for worker verification proofs
+│
+├── src/                           # React Frontend (Vite)
+│   ├── assets/                    # Static image/video resources
+│   ├── components/                # Reusable UI components
+│   ├── context/                   # Global React State (Auth/WebSockets)
+│   └── App.jsx                    # Core application routing & page layouts
+├── tailwind.config.js             # Tailwind design system configuration
+└── package.json                   # Frontend dependencies
+```
+
+---
+
+## ⚙️ Enterprise Setup & Installation
+
+Follow these steps to deploy RozgaarX locally for development and testing:
+
+### Prerequisites
+* **Java**: JDK 17 or higher installed.
+* **Node.js**: Node.js v18.x or v20.x installed.
+* **Database**: MySQL Server 8.0+ running locally.
+
+---
+
+### Step 1: Database Setup
+1. Log into your MySQL console:
+   ```sql
+   CREATE DATABASE rozgaarx;
+   ```
+2. The tables and schemas will be automatically generated by Hibernate DDL on backend startup.
+
+---
+
+### Step 2: Backend Configuration & Run
+1. Navigate to the backend directory:
    ```bash
    cd backend
-   ./gradlew bootRun
    ```
-3. **Frontend**:
+2. Configure database credentials in `backend/src/main/resources/application.properties` (or verify that they match your local MySQL configuration).
+3. Build and launch the application:
+   ```bash
+   # On macOS/Linux
+   ./gradlew bootRun
+   
+   # On Windows
+   gradlew.bat bootRun
+   ```
+   *The Spring Boot server will initialize and listen on port **`8081`**.*
+
+---
+
+### Step 3: Frontend Installation & Run
+1. Open a new terminal in the root directory:
+   ```bash
+   npm install
+   ```
+2. Start the development server:
    ```bash
    npm run dev
    ```
+   *Your browser will launch the portal at **`http://localhost:5173`**.*
 
-## 🔑 Admin Credentials
-- **Email**: `admin@rozgaarx.com`
-- **Password**: `Admin@123`
+---
+
+## 🔑 Demo Access Credentials
+
+To test the role-based flows immediately, use these default system credentials:
+
+| Role | Email | Password | Access Capabilities |
+| :--- | :--- | :--- | :--- |
+| **System Administrator** | `admin@rozgaarx.com` | `Admin@123` | Worker vetting, full marketplace audit, system metrics |
+| **Demo Customer** | `customer@rozgaarx.com` | `Customer@123` | Post jobs, search local workers, check history |
+| **Demo Worker** | `worker@rozgaarx.com` | `Worker@123` | Accept/decline jobs, manage schedule, service tags |
+
+---
+
+## 🛡️ License
+This project is open-source and licensed under the [MIT License](LICENSE).
