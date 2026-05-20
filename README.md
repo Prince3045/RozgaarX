@@ -101,10 +101,12 @@ Follow these steps to deploy RozgaarX locally for development and testing:
 3. Build and launch the application:
    ```bash
    # On macOS/Linux
+   cd backend
    ./gradlew bootRun
    
    # On Windows
-   gradlew.bat bootRun
+   cd backend
+   .\gradlew bootRun
    ```
    *The Spring Boot server will initialize and listen on port **`8081`**.*
 
