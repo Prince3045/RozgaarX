@@ -1,4 +1,4 @@
-package com.rozgaarx.backend.controller;
+ package com.rozgaarx.backend.controller;
 
 import com.rozgaarx.backend.entity.User;
 import com.rozgaarx.backend.entity.WorkerProfile;
@@ -20,7 +20,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/workers")
 public class WorkerController {

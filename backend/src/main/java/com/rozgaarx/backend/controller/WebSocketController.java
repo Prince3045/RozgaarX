@@ -76,6 +76,19 @@ public class WebSocketController {
             messagingTemplate.convertAndSend("/queue/worker/" + worker.getUser().getId(), job);
         }
     }
+
+    public void notifyWorkersOfCancellation(Job job) {
+        List<WorkerProfile> nearbyWorkers = workerProfileRepository.findBySkillIgnoreCaseAndLocationContainingIgnoreCaseAndIsActiveTrue(
+                job.getCategory(), job.getLocation());
+        for (WorkerProfile worker : nearbyWorkers) {
+            messagingTemplate.convertAndSend("/queue/worker/" + worker.getUser().getId(), 
+                (Object) Map.of("id", job.getId(), "status", "CANCELLED"));
+        }
+        if (job.getWorker() != null) {
+            messagingTemplate.convertAndSend("/queue/worker/" + job.getWorker().getId(), 
+                (Object) Map.of("id", job.getId(), "status", "CANCELLED"));
+        }
+    }
     
     @MessageMapping("/job/decline")
     public void declineJob(@Payload Map<String, Long> payload) {
@@ -92,5 +105,18 @@ public class WebSocketController {
                     "status", "CANCELLED"
             ));
         }
+    }
+
+    @MessageMapping("/job/location")
+    public void shareLocation(@Payload Map<String, Object> payload) {
+        Long jobId = Long.valueOf(payload.get("jobId").toString());
+        Double lat = Double.valueOf(payload.get("lat").toString());
+        Double lng = Double.valueOf(payload.get("lng").toString());
+        
+        messagingTemplate.convertAndSend("/topic/job/" + jobId + "/location", (Object) Map.of(
+                "jobId", jobId, 
+                "lat", lat, 
+                "lng", lng
+        ));
     }
 }

@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/reviews")
 public class ReviewController {
@@ -22,6 +22,9 @@ public class ReviewController {
 
     @Autowired
     JobRepository jobRepository;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     @PostMapping
     public ResponseEntity<?> submitReview(@RequestBody Map<String, Object> payload) {
@@ -48,6 +51,16 @@ public class ReviewController {
         review.setComment(comment);
 
         reviewRepository.save(review);
+
+        // Calculate and broadcast updated average rating to the worker in real-time
+        if (job.getWorker() != null) {
+            List<Review> reviews = reviewRepository.findByWorkerId(job.getWorker().getId());
+            double avg = reviews.stream().mapToInt(Review::getRating).average().orElse(0.0);
+            double averageRating = Math.round(avg * 10.0) / 10.0;
+            
+            messagingTemplate.convertAndSend("/queue/worker/" + job.getWorker().getId(), 
+                (Object) Map.of("status", "RATING_UPDATED", "averageRating", averageRating));
+        }
 
         return ResponseEntity.ok(review);
     }

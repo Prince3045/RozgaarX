@@ -5,14 +5,20 @@ class WebSocketService {
   constructor() {
     this.stompClient = null;
     this.connected = false;
-    this.subscriptions = new Map();
-    this.pendingSubscriptions = [];
+    this.activeSubscriptions = new Map(); // Stores destination -> callback for reconnection
+    this.subscriptions = new Map();       // Stores destination -> stompSubscription
     this.pendingMessages = [];
   }
 
   connect(userId, token) {
+    // Prevent duplicate connections
+    if (this.stompClient && this.connected) return;
+
     const socket = new SockJS(import.meta.env.VITE_WS_URL || 'http://localhost:8081/ws');
     this.stompClient = Stomp.over(socket);
+
+    // Disable logging in production if needed, or leave enabled for development debugging
+    this.stompClient.debug = (str) => console.log("[STOMP]", str);
 
     this.stompClient.connect(
       { Authorization: `Bearer ${token}` },
@@ -20,12 +26,18 @@ class WebSocketService {
         this.connected = true;
         console.log('Connected to WebSocket');
         
-        this.pendingSubscriptions.forEach(sub => {
-          const subscription = this.stompClient.subscribe(sub.destination, sub.callback);
-          this.subscriptions.set(sub.destination, subscription);
+        // Automatically subscribe or re-subscribe all active subscriptions
+        this.activeSubscriptions.forEach((callback, destination) => {
+          console.log(`Subscribing to WebSocket channel: ${destination}`);
+          try {
+            const subscription = this.stompClient.subscribe(destination, callback);
+            this.subscriptions.set(destination, subscription);
+          } catch (err) {
+            console.error(`Failed to subscribe to ${destination}:`, err);
+          }
         });
-        this.pendingSubscriptions = [];
 
+        // Send any queued messages
         this.pendingMessages.forEach(msg => {
           this.stompClient.send(msg.destination, {}, JSON.stringify(msg.body));
         });
@@ -34,6 +46,7 @@ class WebSocketService {
       (error) => {
         console.error('WebSocket connection error:', error);
         this.connected = false;
+        // Retry connection after 5 seconds
         setTimeout(() => this.connect(userId, token), 5000);
       }
     );
@@ -41,28 +54,38 @@ class WebSocketService {
 
   disconnect() {
     if (this.stompClient && this.connected) {
-      this.stompClient.disconnect();
+      this.stompClient.disconnect(() => {
+        console.log('Disconnected from WebSocket');
+      });
       this.connected = false;
     }
   }
 
   subscribe(destination, callback) {
+    // Save to active subscriptions so it can be restored on reconnect
+    this.activeSubscriptions.set(destination, callback);
+
     if (this.stompClient && this.connected) {
       const subscription = this.stompClient.subscribe(destination, callback);
       this.subscriptions.set(destination, subscription);
       return subscription;
-    } else {
-      this.pendingSubscriptions.push({ destination, callback });
-      return { unsubscribe: () => {
-        this.pendingSubscriptions = this.pendingSubscriptions.filter(s => s.destination !== destination);
-      }};
     }
+
+    // Return a proxy object so the component can still call unsubscribe cleanly
+    return {
+      unsubscribe: () => this.unsubscribe(destination)
+    };
   }
 
   unsubscribe(destination) {
+    this.activeSubscriptions.delete(destination);
     const subscription = this.subscriptions.get(destination);
     if (subscription) {
-      subscription.unsubscribe();
+      try {
+        subscription.unsubscribe();
+      } catch (err) {
+        console.warn('Stomp unsubscribe failed (likely already disconnected):', err);
+      }
       this.subscriptions.delete(destination);
     }
   }

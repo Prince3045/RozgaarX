@@ -8,4 +8,5 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     List<Job> findByCustomerId(Long customerId);
     List<Job> findByWorkerId(Long workerId);
     List<Job> findByStatus(JobStatus status);
+    List<Job> findByPaymentStatus(String paymentStatus);
 }

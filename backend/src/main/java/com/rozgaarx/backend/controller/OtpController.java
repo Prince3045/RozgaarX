@@ -3,7 +3,7 @@ package com.rozgaarx.backend.controller;
 import com.rozgaarx.backend.entity.Otp;
 import com.rozgaarx.backend.repository.OtpRepository;
 import com.rozgaarx.backend.payload.MessageResponse;
-import com.rozgaarx.backend.service.SmsService;
+import com.rozgaarx.backend.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth/otp")
 public class OtpController {
@@ -22,7 +21,7 @@ public class OtpController {
     private OtpRepository otpRepository;
 
     @Autowired
-    private SmsService smsService;
+    private EmailService emailService;
 
     private final SecureRandom random = new SecureRandom();
 
@@ -43,8 +42,8 @@ public class OtpController {
         Otp otp = new Otp(recipient, otpCode, expiresAt);
         otpRepository.save(otp);
 
-        // Send real SMS if api key is configured, fallback to console log
-        smsService.sendOtpSms(recipient, otpCode);
+        // Send real Email if SMTP is configured, fallback to console log
+        emailService.sendOtpEmail(recipient, otpCode);
 
         // Printing highly visible OTP message to standard output log for developer usage
         System.out.println("\n========================================================");

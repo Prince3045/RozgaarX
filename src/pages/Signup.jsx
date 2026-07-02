@@ -8,6 +8,7 @@ const Signup = () => {
   const { login } = useContext(AuthContext);
   const [role, setRole] = useState('CUSTOMER'); // 'CUSTOMER' or 'WORKER'
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [otpSent, setOtpSent] = useState(false);
@@ -17,15 +18,15 @@ const Signup = () => {
   const navigate = useNavigate();
 
   const handleSendOtp = async () => {
-    if (!phone || phone.trim() === '') {
-      alert('Please enter a valid mobile number first.');
+    if (!email || email.trim() === '' || !email.includes('@')) {
+      alert('Please enter a valid email address first.');
       return;
     }
     setOtpLoading(true);
     try {
-      await api.post('/auth/otp/send', { recipient: phone });
+      await api.post('/auth/otp/send', { recipient: email });
       setOtpSent(true);
-      alert('OTP sent successfully! Please check your terminal console/logs for the 6-digit code.');
+      alert('OTP sent successfully! Please check your email inbox or backend console logs.');
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to send OTP. Make sure backend server is running.');
     } finally {
@@ -40,9 +41,9 @@ const Signup = () => {
     }
     setOtpLoading(true);
     try {
-      await api.post('/auth/otp/verify', { recipient: phone, code: otpCode });
+      await api.post('/auth/otp/verify', { recipient: email, code: otpCode });
       setOtpVerified(true);
-      alert('Mobile number verified successfully!');
+      alert('Email verified successfully!');
     } catch (error) {
       alert(error.response?.data?.message || 'Invalid or expired OTP. Please try again.');
     } finally {
@@ -53,7 +54,7 @@ const Signup = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
     if (!otpVerified) {
-      alert('Please verify your mobile number with OTP first.');
+      alert('Please verify your email address with OTP first.');
       return;
     }
     
@@ -61,7 +62,7 @@ const Signup = () => {
     const payload = {
       name: e.target.name.value,
       phone: phone,
-      email: e.target.email.value,
+      email: email,
       password: e.target.password.value,
       role: role
     };
@@ -125,32 +126,26 @@ const Signup = () => {
                 className="mt-1 appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm transition-colors"
                 placeholder="Enter your full name" />
             </div>
+            
+            {/* Email Address with OTP Verification */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
-              <input id="email" name="email" type="email" required
-                className="mt-1 appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm transition-colors"
-                placeholder="Enter email address" />
-            </div>
-            
-            {/* Mobile Number with OTP Verification */}
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Mobile Number (with +91)</label>
               <div className="mt-1 flex space-x-2">
                 <input 
-                  id="phone" 
-                  name="phone" 
-                  type="text" 
+                  id="email" 
+                  name="email" 
+                  type="email" 
                   required
                   disabled={otpSent}
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm transition-colors disabled:bg-gray-100 disabled:text-gray-500"
-                  placeholder="+91 98765 43210" 
+                  placeholder="Enter email address" 
                 />
                 {!otpVerified && (
                   <button
                     type="button"
-                    disabled={otpLoading || !phone}
+                    disabled={otpLoading || !email}
                     onClick={handleSendOtp}
                     className="px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gray-900 hover:bg-gray-800 disabled:opacity-50 transition-all shrink-0 flex items-center justify-center min-w-[90px]"
                   >
@@ -165,7 +160,7 @@ const Signup = () => {
                 )}
               </div>
             </div>
-
+            
             {/* OTP Code Input */}
             {otpSent && !otpVerified && (
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-150 space-y-3 transition-all duration-300">
@@ -191,10 +186,25 @@ const Signup = () => {
                   </button>
                 </div>
                 <p className="text-xs text-gray-500 text-center">
-                  Check your Spring Boot backend console for the generated OTP code!
+                  Check your email inbox or backend console log for the generated OTP code!
                 </p>
               </div>
             )}
+
+            {/* Mobile Number - Standard Field */}
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Mobile Number (with +91)</label>
+              <input 
+                id="phone" 
+                name="phone" 
+                type="text" 
+                required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm transition-colors"
+                placeholder="+91 98765 43210" 
+              />
+            </div>
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>

@@ -28,6 +28,7 @@ public class Job {
     private String location;
 
     private Integer price;
+    private Integer proposedPrice;
 
     @Enumerated(EnumType.STRING)
     private JobStatus status = JobStatus.REQUESTED;
@@ -36,6 +37,9 @@ public class Job {
 
     @Version
     private Long version;
+
+    private String upiTxnId;
+    private String paymentStatus = "PENDING"; // PENDING, SUBMITTED, APPROVED
 
     public Job() {}
 
@@ -60,6 +64,9 @@ public class Job {
     public Integer getPrice() { return price; }
     public void setPrice(Integer price) { this.price = price; }
 
+    public Integer getProposedPrice() { return proposedPrice; }
+    public void setProposedPrice(Integer proposedPrice) { this.proposedPrice = proposedPrice; }
+
     public JobStatus getStatus() { return status; }
     public void setStatus(JobStatus status) { this.status = status; }
 
@@ -68,4 +75,10 @@ public class Job {
 
     public Long getVersion() { return version; }
     public void setVersion(Long version) { this.version = version; }
+
+    public String getUpiTxnId() { return upiTxnId; }
+    public void setUpiTxnId(String upiTxnId) { this.upiTxnId = upiTxnId; }
+
+    public String getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(String paymentStatus) { this.paymentStatus = paymentStatus; }
 }

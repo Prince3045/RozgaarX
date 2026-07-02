@@ -2,7 +2,9 @@ package com.rozgaarx.backend.controller;
 
 import com.rozgaarx.backend.entity.WorkerProfile;
 import com.rozgaarx.backend.entity.enums.VerificationStatus;
+import com.rozgaarx.backend.entity.Job;
 import com.rozgaarx.backend.repository.WorkerProfileRepository;
+import com.rozgaarx.backend.repository.JobRepository;
 import com.rozgaarx.backend.security.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,13 +13,15 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
 
     @Autowired
     private WorkerProfileRepository workerProfileRepository;
+
+    @Autowired
+    private JobRepository jobRepository;
 
     private boolean isAdmin() {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -43,5 +47,13 @@ public class AdminController {
             workerProfileRepository.save(worker);
             return ResponseEntity.ok("Worker approved successfully!");
         }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/payments/pending")
+    public ResponseEntity<?> getPendingPayments() {
+        if (!isAdmin()) return ResponseEntity.status(403).body("Access Denied");
+        
+        List<Job> submittedJobs = jobRepository.findByPaymentStatus("SUBMITTED");
+        return ResponseEntity.ok(submittedJobs);
     }
 }

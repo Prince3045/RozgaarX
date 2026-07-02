@@ -24,6 +24,8 @@ public class WorkerProfile {
     @Enumerated(EnumType.STRING)
     private VerificationStatus verificationStatus = VerificationStatus.PENDING;
 
+    private Double walletBalance = 0.0;
+
     public WorkerProfile() {}
 
     public Long getId() { return id; }
@@ -49,4 +51,7 @@ public class WorkerProfile {
     
     public VerificationStatus getVerificationStatus() { return verificationStatus; }
     public void setVerificationStatus(VerificationStatus verificationStatus) { this.verificationStatus = verificationStatus; }
+
+    public Double getWalletBalance() { return walletBalance; }
+    public void setWalletBalance(Double walletBalance) { this.walletBalance = walletBalance; }
 }
