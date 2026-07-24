@@ -2,7 +2,7 @@ package com.rozgaarx.backend.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import org.springframework.data.annotation.Version;
+
 import com.rozgaarx.backend.entity.enums.JobStatus;
 
 @Entity

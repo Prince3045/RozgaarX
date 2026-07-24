@@ -35,3 +35,15 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Environment ###
+.env
+
+### SQLite Database ###
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+### Uploads ###
+uploads/

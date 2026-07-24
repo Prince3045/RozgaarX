@@ -25,7 +25,7 @@ public class Review {
     @Column(nullable = false)
     private Integer rating; // 1 to 5
 
-    @Column(columnDefinition = "TEXT")
+    @Column
     private String comment;
 
     private LocalDateTime createdAt = LocalDateTime.now();
