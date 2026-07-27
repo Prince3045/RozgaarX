@@ -8,28 +8,28 @@ const LandingPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col flex-grow">
+    <div className="flex flex-col flex-grow bg-white dark:bg-gray-900 transition-colors duration-200">
       {/* Hero Section */}
-      <section className="relative bg-white overflow-hidden">
+      <section className="relative bg-white dark:bg-gray-900 overflow-hidden transition-colors duration-200">
         <div className="max-w-7xl mx-auto">
-          <div className="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32 pt-20">
+          <div className="relative z-10 pb-8 bg-white dark:bg-gray-900 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32 pt-20 transition-colors duration-200">
             <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
               <div className="sm:text-center lg:text-left">
-                <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
                   <span className="block xl:inline">Smart work.</span>{' '}
                   <span className="block text-primary-500 xl:inline">Stable income.</span>
                 </h1>
-                <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+                <p className="mt-3 text-base text-gray-500 dark:text-gray-400 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
                   Rozgaarx connects reliable informal workers with customers looking for quality service. Fast, secure, and professional.
                 </p>
                 <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
                   <div className="rounded-md shadow">
-                    <button onClick={() => navigate('/customer-dashboard')} className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-900 hover:bg-gray-800 md:py-4 md:text-lg md:px-10 transition-colors">
+                    <button onClick={() => navigate('/customer-dashboard')} className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-900 hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 md:py-4 md:text-lg md:px-10 transition-colors">
                       Find a Worker
                     </button>
                   </div>
                   <div className="mt-3 sm:mt-0 sm:ml-3">
-                    <button onClick={() => navigate('/signup')} className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-gray-900 bg-primary-100 hover:bg-primary-200 md:py-4 md:text-lg md:px-10 transition-colors">
+                    <button onClick={() => navigate('/signup')} className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-gray-900 bg-primary-100 hover:bg-primary-200 dark:bg-gray-800 dark:text-primary-400 dark:hover:bg-gray-700 md:py-4 md:text-lg md:px-10 transition-colors">
                       Join as Worker
                     </button>
                   </div>
@@ -39,29 +39,29 @@ const LandingPage = () => {
           </div>
         </div>
         <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-          <div className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full bg-gray-100 flex items-center justify-center relative overflow-hidden">
+          <div className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative overflow-hidden transition-colors duration-200">
             {/* Visual aesthetic instead of image dependency */}
-             <div className="absolute inset-0 bg-gradient-to-br from-primary-500/20 to-brandblue-500/20 mix-blend-multiply"></div>
+             <div className="absolute inset-0 bg-gradient-to-br from-primary-500/20 to-brandblue-500/20 dark:from-primary-500/10 dark:to-brandblue-500/10 mix-blend-multiply"></div>
              <div className="grid grid-cols-2 gap-4 p-8 w-full max-w-lg transform rotate-3 scale-105">
-                <div className="bg-white p-4 rounded-xl shadow-lg border border-gray-100 flex flex-col gap-2 transform -translate-y-4">
-                  <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center mb-2"><Wrench className="w-5 h-5 text-primary-600" /></div>
-                  <div className="h-2 w-1/2 bg-gray-200 rounded"></div>
-                  <div className="h-2 w-3/4 bg-gray-100 rounded"></div>
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg dark:shadow-2xl-dark border border-gray-100 dark:border-gray-700 flex flex-col gap-2 transform -translate-y-4 transition-colors duration-200">
+                  <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-950/50 flex items-center justify-center mb-2"><Wrench className="w-5 h-5 text-primary-600 dark:text-primary-400" /></div>
+                  <div className="h-2 w-1/2 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-2 w-3/4 bg-gray-100 dark:bg-gray-600 rounded"></div>
                 </div>
-                <div className="bg-white p-4 rounded-xl shadow-lg border border-gray-100 flex flex-col gap-2 translate-y-8">
-                  <div className="w-10 h-10 rounded-full bg-brandblue-100 flex items-center justify-center mb-2"><Star className="w-5 h-5 text-brandblue-600" /></div>
-                  <div className="h-2 w-2/3 bg-gray-200 rounded"></div>
-                  <div className="h-2 w-full bg-gray-100 rounded"></div>
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg dark:shadow-2xl-dark border border-gray-100 dark:border-gray-700 flex flex-col gap-2 translate-y-8 transition-colors duration-200">
+                  <div className="w-10 h-10 rounded-full bg-brandblue-100 dark:bg-brandblue-950/50 flex items-center justify-center mb-2"><Star className="w-5 h-5 text-brandblue-600 dark:text-brandblue-400" /></div>
+                  <div className="h-2 w-2/3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-2 w-full bg-gray-100 dark:bg-gray-600 rounded"></div>
                 </div>
-                <div className="bg-white p-4 rounded-xl shadow-lg border border-gray-100 flex flex-col gap-2">
-                  <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center mb-2"><ShieldCheck className="w-5 h-5 text-yellow-600" /></div>
-                  <div className="h-2 w-3/4 bg-gray-200 rounded"></div>
-                  <div className="h-2 w-1/2 bg-gray-100 rounded"></div>
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg dark:shadow-2xl-dark border border-gray-100 dark:border-gray-700 flex flex-col gap-2 transition-colors duration-200">
+                  <div className="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-950/50 flex items-center justify-center mb-2"><ShieldCheck className="w-5 h-5 text-yellow-600 dark:text-yellow-400" /></div>
+                  <div className="h-2 w-3/4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-2 w-1/2 bg-gray-100 dark:bg-gray-600 rounded"></div>
                 </div>
-                <div className="bg-white p-4 rounded-xl shadow-lg border border-gray-100 flex flex-col gap-2 transform translate-y-12">
-                   <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mb-2"><Clock className="w-5 h-5 text-purple-600" /></div>
-                   <div className="h-2 w-1/2 bg-gray-200 rounded"></div>
-                   <div className="h-2 w-2/3 bg-gray-100 rounded"></div>
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg dark:shadow-2xl-dark border border-gray-100 dark:border-gray-700 flex flex-col gap-2 transform translate-y-12 transition-colors duration-200">
+                    <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-950/50 flex items-center justify-center mb-2"><Clock className="w-5 h-5 text-purple-600 dark:text-purple-400" /></div>
+                    <div className="h-2 w-1/2 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="h-2 w-2/3 bg-gray-100 dark:bg-gray-600 rounded"></div>
                 </div>
              </div>
           </div>
@@ -69,80 +69,80 @@ const LandingPage = () => {
       </section>
 
       {/* How it works */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-gray-50 dark:bg-gray-800/40 border-t border-b border-gray-100 dark:border-gray-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-extrabold text-gray-900">How it works</h2>
-            <p className="mt-4 text-lg text-gray-500">Getting a professional at your doorstep is as easy as 1-2-3</p>
+            <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">How it works</h2>
+            <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">Getting a professional at your doorstep is as easy as 1-2-3</p>
           </div>
           <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-10">
             <div className="flex flex-col items-center text-center">
-              <div className="flex items-center justify-center h-16 w-16 rounded-full bg-white shadow-md text-primary-500 mb-6 border border-gray-100 transform transition-transform hover:scale-110">
+              <div className="flex items-center justify-center h-16 w-16 rounded-full bg-white dark:bg-gray-800 shadow-md text-primary-500 dark:text-primary-400 mb-6 border border-gray-100 dark:border-gray-700 transform transition-transform hover:scale-110">
                 <MapPin className="h-6 w-6" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">1. Request Service</h3>
-              <p className="text-gray-500">Enter your location and select the service you need right now.</p>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">1. Request Service</h3>
+              <p className="text-gray-500 dark:text-gray-400">Enter your location and select the service you need right now.</p>
             </div>
             <div className="flex flex-col items-center text-center relative">
-              <div className="hidden md:block absolute top-8 left-0 -ml-[50%] w-full border-t-2 border-dashed border-gray-300 z-0"></div>
-              <div className="relative z-10 flex items-center justify-center h-16 w-16 rounded-full bg-white shadow-md text-primary-500 mb-6 border border-gray-100 transform transition-transform hover:scale-110">
+              <div className="hidden md:block absolute top-8 left-0 -ml-[50%] w-full border-t-2 border-dashed border-gray-300 dark:border-gray-700 z-0"></div>
+              <div className="relative z-10 flex items-center justify-center h-16 w-16 rounded-full bg-white dark:bg-gray-800 shadow-md text-primary-500 dark:text-primary-400 mb-6 border border-gray-100 dark:border-gray-700 transform transition-transform hover:scale-110">
                 <Clock className="h-6 w-6" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">2. Get Matched</h3>
-              <p className="text-gray-500">We notify nearby verified professionals and connect you instantly.</p>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">2. Get Matched</h3>
+              <p className="text-gray-500 dark:text-gray-400">We notify nearby verified professionals and connect you instantly.</p>
             </div>
              <div className="flex flex-col items-center text-center relative">
-              <div className="hidden md:block absolute top-8 left-0 -ml-[50%] w-full border-t-2 border-dashed border-gray-300 z-0"></div>
-              <div className="relative z-10 flex items-center justify-center h-16 w-16 rounded-full bg-white shadow-md text-primary-500 mb-6 border border-gray-100 transform transition-transform hover:scale-110">
+              <div className="hidden md:block absolute top-8 left-0 -ml-[50%] w-full border-t-2 border-dashed border-gray-300 dark:border-gray-700 z-0"></div>
+              <div className="relative z-10 flex items-center justify-center h-16 w-16 rounded-full bg-white dark:bg-gray-800 shadow-md text-primary-500 dark:text-primary-400 mb-6 border border-gray-100 dark:border-gray-700 transform transition-transform hover:scale-110">
                 <ShieldCheck className="h-6 w-6" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">3. Job Done</h3>
-              <p className="text-gray-500">Service is delivered securely. Pay the professional and rate your experience.</p>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">3. Job Done</h3>
+              <p className="text-gray-500 dark:text-gray-400">Service is delivered securely. Pay the professional and rate your experience.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Features */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white dark:bg-gray-900 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:grid lg:grid-cols-2 lg:gap-16 lg:items-center">
             <div>
-              <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">Why choose Rozgaarx?</h2>
-              <p className="mt-4 text-lg text-gray-500">
+              <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Why choose Rozgaarx?</h2>
+              <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">
                 We're committed to bringing trust, transparency, and high quality to the informal workforce sector.
               </p>
               <dl className="mt-10 space-y-8">
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <div className="flex items-center justify-center h-12 w-12 rounded-md bg-green-50 text-primary-600">
+                    <div className="flex items-center justify-center h-12 w-12 rounded-md bg-green-50 dark:bg-green-950/30 text-primary-600 dark:text-primary-400">
                       <ShieldCheck className="h-6 w-6" />
                     </div>
                   </div>
                   <div className="ml-4">
-                    <dt className="text-lg leading-6 font-medium text-gray-900">Verified Professionals</dt>
-                    <dd className="mt-2 text-base text-gray-500">Every worker undergoes a strict identity and background check to ensure your safety.</dd>
+                    <dt className="text-lg leading-6 font-medium text-gray-900 dark:text-white">Verified Professionals</dt>
+                    <dd className="mt-2 text-base text-gray-500 dark:text-gray-400">Every worker undergoes a strict identity and background check to ensure your safety.</dd>
                   </div>
                 </div>
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-50 text-brandblue-600">
+                    <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-50 dark:bg-blue-950/30 text-brandblue-600 dark:text-brandblue-400">
                       <Star className="h-6 w-6" />
                     </div>
                   </div>
                   <div className="ml-4">
-                    <dt className="text-lg leading-6 font-medium text-gray-900">Transparent Ratings</dt>
-                    <dd className="mt-2 text-base text-gray-500">Honest reviews from your neighborhood help you pick the best worker for your job.</dd>
+                    <dt className="text-lg leading-6 font-medium text-gray-900 dark:text-white">Transparent Ratings</dt>
+                    <dd className="mt-2 text-base text-gray-500 dark:text-gray-400">Honest reviews from your neighborhood help you pick the best worker for your job.</dd>
                   </div>
                 </div>
               </dl>
             </div>
             <div className="mt-10 lg:mt-0">
-               <div className="bg-gray-50 rounded-2xl p-8 relative overflow-hidden border border-gray-100 shadow-sm">
-                  <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-primary-100 opacity-50"></div>
-                  <h3 className="text-xl font-bold text-gray-900 relative z-10 mb-6">Are you a skilled worker?</h3>
-                  <p className="text-gray-600 mb-8 relative z-10">Join our platform to get stable job opportunities, manage your bookings easily, and earn up to 40% more.</p>
-                  <button onClick={() => navigate('/signup')} className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-gray-900 hover:bg-gray-800 transition-colors relative z-10">
+               <div className="bg-gray-50 dark:bg-gray-800/80 rounded-2xl p-8 relative overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm transition-colors duration-200">
+                  <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-primary-100 dark:bg-primary-950/40 opacity-50"></div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white relative z-10 mb-6">Are you a skilled worker?</h3>
+                  <p className="text-gray-600 dark:text-gray-300 mb-8 relative z-10">Join our platform to get stable job opportunities, manage your bookings easily, and earn up to 40% more.</p>
+                  <button onClick={() => navigate('/signup')} className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-gray-900 hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 transition-colors relative z-10">
                     Apply as Worker <ArrowRight className="ml-2 -mr-1 h-5 w-5" />
                   </button>
                </div>
