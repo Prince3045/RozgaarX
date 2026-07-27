@@ -29,7 +29,7 @@ const LandingPage = () => {
                     </button>
                   </div>
                   <div className="mt-3 sm:mt-0 sm:ml-3">
-                    <button onClick={() => navigate('/signup')} className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-gray-900 bg-primary-100 hover:bg-primary-200 dark:bg-gray-800 dark:text-primary-400 dark:hover:bg-gray-700 md:py-4 md:text-lg md:px-10 transition-colors">
+                    <button onClick={() => navigate('/signup')} className="w-full flex items-center justify-center px-8 py-3 border border-transparent dark:border-primary-500/20 text-base font-medium rounded-md text-primary-700 dark:text-primary-500 bg-primary-100 dark:bg-primary-600/10 hover:bg-primary-200 dark:hover:bg-primary-600/20 md:py-4 md:text-lg md:px-10 transition-colors">
                       Join as Worker
                     </button>
                   </div>
