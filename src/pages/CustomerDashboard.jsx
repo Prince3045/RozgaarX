@@ -484,7 +484,7 @@ const CustomerDashboard = () => {
                                 {trackingJobId === job.id ? 'Close Map' : 'Track Live Worker'}
                               </button>
                             )}
-                            {(job.status === 'ACCEPTED' || job.status === 'IN_PROGRESS') && (
+                            {(job.status === 'ACCEPTED' || job.status === 'IN_PROGRESS' || (job.status === 'COMPLETED' && job.paymentStatus !== 'APPROVED')) && (
                               <button 
                                 disabled={!!job.proposedPrice}
                                 onClick={() => {
