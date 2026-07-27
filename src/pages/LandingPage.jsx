@@ -7,16 +7,6 @@ const LandingPage = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (user) {
-      if (user.role === 'ROLE_CUSTOMER') {
-        navigate('/customer-dashboard');
-      } else {
-        navigate('/worker-dashboard');
-      }
-    }
-  }, [user, navigate]);
-
   return (
     <div className="flex flex-col flex-grow">
       {/* Hero Section */}

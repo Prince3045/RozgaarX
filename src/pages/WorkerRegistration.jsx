@@ -1,15 +1,30 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Upload, CheckCircle, ArrowLeft, ShieldAlert } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import { AuthContext } from '../context/AuthContext';
 
 const WorkerRegistration = () => {
+  const { user, loading: authLoading, logout } = useContext(AuthContext);
   const [step, setStep] = useState(1); // 1 for form, 2 for pending verification
   const [loading, setLoading] = useState(false);
   const [fileName, setFileName] = useState('');
   const navigate = useNavigate();
-  const { logout } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user || user.role !== 'ROLE_WORKER') {
+      navigate('/login');
+    }
+  }, [user, authLoading, navigate]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="text-gray-500 font-medium">Loading session...</div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,7 +83,7 @@ const WorkerRegistration = () => {
   return (
     <div className="max-w-3xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
       <button 
-        onClick={() => navigate('/signup')} 
+        onClick={() => navigate(-1)} 
         className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 mb-8"
       >
         <ArrowLeft className="h-4 w-4 mr-1" />

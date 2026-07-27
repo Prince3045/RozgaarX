@@ -1,13 +1,26 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Wrench } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import api from '../api/axiosConfig';
 
 const Login = () => {
-  const { login } = useContext(AuthContext);
+  const { user, loading, login } = useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (loading) return;
+    if (user) {
+      if (user.role === 'ROLE_ADMIN') {
+        navigate('/admin-dashboard', { replace: true });
+      } else if (user.role === 'ROLE_CUSTOMER') {
+        navigate('/customer-dashboard', { replace: true });
+      } else {
+        navigate('/worker-dashboard', { replace: true });
+      }
+    }
+  }, [user, loading, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -19,11 +32,11 @@ const Login = () => {
       const res = await api.post('/auth/login', payload);
       login(res.data);
       if (res.data.role === 'ROLE_ADMIN') {
-        navigate('/admin-dashboard');
+        navigate('/admin-dashboard', { replace: true });
       } else if (res.data.role === 'ROLE_CUSTOMER') {
-        navigate('/customer-dashboard');
+        navigate('/customer-dashboard', { replace: true });
       } else {
-        navigate('/worker-dashboard');
+        navigate('/worker-dashboard', { replace: true });
       }
     } catch (err) {
       alert('Login failed. Please check credentials.');

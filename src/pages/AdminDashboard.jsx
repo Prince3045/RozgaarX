@@ -5,7 +5,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
-  const { user } = useContext(AuthContext);
+  const { user, loading: authLoading } = useContext(AuthContext);
   const navigate = useNavigate();
   const [pendingWorkers, setPendingWorkers] = useState([]);
   const [pendingPayments, setPendingPayments] = useState([]);
@@ -13,6 +13,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user || user.role !== 'ROLE_ADMIN') {
        navigate('/');
        return;
@@ -53,6 +54,14 @@ const AdminDashboard = () => {
       alert('Failed to approve payment: ' + (err.response?.data?.message || err.message));
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="text-gray-500 font-medium">Loading session...</div>
+      </div>
+    );
+  }
 
   if (loading) {
     return <div className="flex-grow flex items-center justify-center bg-gray-50"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div></div>;

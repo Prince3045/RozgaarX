@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, MapPin, ShieldCheck, Zap, Droplets, Hammer, Sparkles, FileText, CalendarClock, Navigation } from 'lucide-react';
 import { CATEGORIES } from '../data/mockData';
 import api from '../api/axiosConfig';
@@ -6,7 +7,16 @@ import { AuthContext } from '../context/AuthContext';
 import webSocketService from '../api/webSocketService';
 
 const CustomerDashboard = () => {
-  const { user } = useContext(AuthContext);
+  const { user, loading } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (loading) return;
+    if (!user || user.role !== 'ROLE_CUSTOMER') {
+      navigate('/login');
+    }
+  }, [user, loading, navigate]);
+
   const [selectedCategory, setSelectedCategory] = useState('');
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
@@ -307,6 +317,14 @@ const CustomerDashboard = () => {
       default: return null;
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="text-gray-500 font-medium">Loading session...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-50 dark:bg-gray-950 flex-grow py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300">

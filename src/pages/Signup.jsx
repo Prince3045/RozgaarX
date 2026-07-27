@@ -1,11 +1,11 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Wrench, ArrowRight, ShieldCheck } from 'lucide-react';
 import api from '../api/axiosConfig';
 import { AuthContext } from '../context/AuthContext';
 
 const Signup = () => {
-  const { login } = useContext(AuthContext);
+  const { user, loading: authLoading, login } = useContext(AuthContext);
   const [role, setRole] = useState('CUSTOMER'); // 'CUSTOMER' or 'WORKER'
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
@@ -16,6 +16,19 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (user) {
+      if (user.role === 'ROLE_ADMIN') {
+        navigate('/admin-dashboard', { replace: true });
+      } else if (user.role === 'ROLE_CUSTOMER') {
+        navigate('/customer-dashboard', { replace: true });
+      } else {
+        navigate('/worker-dashboard', { replace: true });
+      }
+    }
+  }, [user, authLoading, navigate]);
 
   const handleSendOtp = async () => {
     if (!email || email.trim() === '' || !email.includes('@')) {
@@ -74,7 +87,7 @@ const Signup = () => {
          // Auto-login to drop them immediately into the registration flow
          const loginRes = await api.post('/auth/login', { username: payload.phone || payload.email, password: payload.password });
          login(loginRes.data);
-         navigate('/register-worker');
+         navigate('/register-worker', { replace: true });
       } else {
          alert('Registered successfully!');
          navigate('/login');
