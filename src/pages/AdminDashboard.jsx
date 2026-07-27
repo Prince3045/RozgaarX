@@ -4,6 +4,8 @@ import api from '../api/axiosConfig';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081';
+
 const AdminDashboard = () => {
   const { user, loading: authLoading } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -151,7 +153,7 @@ const AdminDashboard = () => {
                                   <div className="flex items-center">
                                     <FileImage className="w-4 h-4 mr-2 text-primary-500" /> ID Proof Uploaded
                                   </div>
-                                  <a href={worker.idProofUrl.startsWith('uploads') ? `http://localhost:8081/${worker.idProofUrl}` : `http://localhost:8081/uploads/${worker.idProofUrl}`} target="_blank" rel="noreferrer" className="text-primary-600 font-medium hover:underline">View File</a>
+                                  <a href={worker.idProofUrl.startsWith('uploads') ? `${apiBase}/${worker.idProofUrl}` : `${apiBase}/uploads/${worker.idProofUrl}`} target="_blank" rel="noreferrer" className="text-primary-600 font-medium hover:underline">View File</a>
                                </div>
                             </div>
                          </div>
