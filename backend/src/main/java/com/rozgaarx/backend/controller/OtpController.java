@@ -77,7 +77,7 @@ public class OtpController {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: OTP has expired! Please send a new one."));
         }
 
-        if (!otp.getCode().equals(code) && !"123456".equals(code)) {
+        if (!otp.getCode().equals(code)) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Invalid OTP code! Please try again."));
         }
 
