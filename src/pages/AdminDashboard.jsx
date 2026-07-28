@@ -4,8 +4,10 @@ import api from '../api/axiosConfig';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081';
+
 const AdminDashboard = () => {
-  const { user } = useContext(AuthContext);
+  const { user, loading: authLoading } = useContext(AuthContext);
   const navigate = useNavigate();
   const [pendingWorkers, setPendingWorkers] = useState([]);
   const [pendingPayments, setPendingPayments] = useState([]);
@@ -13,6 +15,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user || user.role !== 'ROLE_ADMIN') {
        navigate('/');
        return;
@@ -53,6 +56,14 @@ const AdminDashboard = () => {
       alert('Failed to approve payment: ' + (err.response?.data?.message || err.message));
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="text-gray-500 font-medium">Loading session...</div>
+      </div>
+    );
+  }
 
   if (loading) {
     return <div className="flex-grow flex items-center justify-center bg-gray-50"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div></div>;
@@ -142,7 +153,7 @@ const AdminDashboard = () => {
                                   <div className="flex items-center">
                                     <FileImage className="w-4 h-4 mr-2 text-primary-500" /> ID Proof Uploaded
                                   </div>
-                                  <a href={worker.idProofUrl.startsWith('uploads') ? `http://localhost:8081/${worker.idProofUrl}` : `http://localhost:8081/uploads/${worker.idProofUrl}`} target="_blank" rel="noreferrer" className="text-primary-600 font-medium hover:underline">View File</a>
+                                  <a href={worker.idProofUrl.startsWith('uploads') ? `${apiBase}/${worker.idProofUrl}` : `${apiBase}/uploads/${worker.idProofUrl}`} target="_blank" rel="noreferrer" className="text-primary-600 font-medium hover:underline">View File</a>
                                </div>
                             </div>
                          </div>

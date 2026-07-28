@@ -7,8 +7,17 @@ import api from '../api/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 
 const WorkerDashboard = () => {
-  const { user } = useContext(AuthContext);
+  const { user, loading: authLoading } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user || user.role !== 'ROLE_WORKER') {
+      navigate('/login');
+    }
+  }, [user, authLoading, navigate]);
+
+
   const [isOnline, setIsOnline] = useState(false);
   const [profile, setProfile] = useState(null);
   const [requests, setRequests] = useState([]);
@@ -317,6 +326,14 @@ const WorkerDashboard = () => {
       alert("Failed to update price: " + (err.response?.data?.message || err.message));
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="text-gray-500 font-medium">Loading session...</div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return <div className="flex-grow flex items-center justify-center bg-gray-50"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div></div>;

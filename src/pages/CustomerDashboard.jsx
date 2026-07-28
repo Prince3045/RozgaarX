@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, MapPin, ShieldCheck, Zap, Droplets, Hammer, Sparkles, FileText, CalendarClock, Navigation } from 'lucide-react';
 import { CATEGORIES } from '../data/mockData';
 import api from '../api/axiosConfig';
@@ -6,7 +7,16 @@ import { AuthContext } from '../context/AuthContext';
 import webSocketService from '../api/webSocketService';
 
 const CustomerDashboard = () => {
-  const { user } = useContext(AuthContext);
+  const { user, loading } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (loading) return;
+    if (!user || user.role !== 'ROLE_CUSTOMER') {
+      navigate('/login');
+    }
+  }, [user, loading, navigate]);
+
   const [selectedCategory, setSelectedCategory] = useState('');
   const [location, setLocation] = useState('');
   const [coords, setCoords] = useState({ lat: null, lng: null });
@@ -364,6 +374,14 @@ const CustomerDashboard = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="text-gray-500 font-medium">Loading session...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gray-50 dark:bg-gray-950 flex-grow py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       <div className="max-w-3xl mx-auto space-y-8">
@@ -533,7 +551,7 @@ const CustomerDashboard = () => {
                                 {trackingJobId === job.id ? 'Close Map' : 'Track Live Worker'}
                               </button>
                             )}
-                            {(job.status === 'ACCEPTED' || job.status === 'IN_PROGRESS') && (
+                            {(job.status === 'ACCEPTED' || job.status === 'IN_PROGRESS' || (job.status === 'COMPLETED' && job.paymentStatus !== 'APPROVED')) && (
                               <button 
                                 disabled={!!job.proposedPrice}
                                 onClick={() => {
