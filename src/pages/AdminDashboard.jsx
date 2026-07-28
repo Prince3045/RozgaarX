@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { ShieldCheck, Check, Search, MapPin, Briefcase, FileImage } from 'lucide-react';
+import { ShieldCheck, Check, Search, MapPin, Briefcase, FileImage, X } from 'lucide-react';
 import api from '../api/axiosConfig';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -11,7 +11,8 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [pendingWorkers, setPendingWorkers] = useState([]);
   const [pendingPayments, setPendingPayments] = useState([]);
-  const [activeTab, setActiveTab] = useState('workers'); // 'workers' or 'payments'
+  const [allJobs, setAllJobs] = useState([]);
+  const [activeTab, setActiveTab] = useState('workers'); // 'workers', 'payments', or 'jobs'
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,6 +29,9 @@ const AdminDashboard = () => {
         
         const paymentsRes = await api.get('/admin/payments/pending');
         setPendingPayments(paymentsRes.data);
+
+        const jobsRes = await api.get('/admin/jobs');
+        setAllJobs(jobsRes.data);
       } catch (err) {
         console.error('Failed to fetch admin data', err);
       } finally {
@@ -54,6 +58,19 @@ const AdminDashboard = () => {
       alert('Payment approved successfully! Customer and worker notified.');
     } catch (err) {
       alert('Failed to approve payment: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleRejectPayment = async (jobId) => {
+    if (!window.confirm("Are you sure you want to reject this payment request? The customer will be asked to re-submit their UTR number.")) {
+      return;
+    }
+    try {
+      await api.put(`/jobs/${jobId}/reject-payment`);
+      setPendingPayments(pendingPayments.filter(p => p.id !== jobId));
+      alert('Payment rejected. Customer notified to re-submit UTR.');
+    } catch (err) {
+      alert('Failed to reject payment: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -111,6 +128,16 @@ const AdminDashboard = () => {
             }`}
           >
             Verify UPI Payments ({pendingPayments.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('jobs')}
+            className={`px-5 py-2.5 text-sm font-bold rounded-xl transition-all ${
+              activeTab === 'jobs' 
+                ? 'bg-white text-gray-900 shadow-sm' 
+                : 'text-gray-500 hover:text-gray-800'
+            }`}
+          >
+            Track All Requests ({allJobs.length})
           </button>
         </div>
 
@@ -170,7 +197,7 @@ const AdminDashboard = () => {
                  </div>
                )}
              </>
-           ) : (
+           ) : activeTab === 'payments' ? (
              <>
                <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
                   Pending UPI Payments 
@@ -211,20 +238,112 @@ const AdminDashboard = () => {
                                </div>
                             </div>
                          </div>
-                         <div className="border-t border-gray-100 bg-gray-50 p-4">
-                            <button 
-                               onClick={() => handleApprovePayment(job.id)}
-                               className="w-full flex items-center justify-center px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors font-semibold"
-                            >
-                               <Check className="w-4 h-4 mr-2" /> Confirm & Approve
-                            </button>
-                         </div>
+                          <div className="border-t border-gray-100 bg-gray-50 p-4 flex space-x-3">
+                             <button 
+                                onClick={() => handleRejectPayment(job.id)}
+                                className="w-1/2 flex items-center justify-center px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition-colors"
+                             >
+                                <X className="w-4 h-4 mr-2" /> Reject & Reset
+                             </button>
+                             <button 
+                                onClick={() => handleApprovePayment(job.id)}
+                                className="w-1/2 flex items-center justify-center px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-semibold transition-colors"
+                             >
+                                <Check className="w-4 h-4 mr-2" /> Confirm & Approve
+                             </button>
+                          </div>
                       </div>
                     ))}
                  </div>
                )}
-             </>
-           )}
+              </>
+            ) : (
+              <>
+                <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                  Track All Requests
+                </h2>
+
+                {/* Summary Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                  <div className="bg-white p-5 rounded-2xl border border-gray-250/60 shadow-sm text-center">
+                    <div className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Total Requests</div>
+                    <div className="text-3xl font-extrabold text-gray-900">{allJobs.length}</div>
+                  </div>
+                  <div className="bg-white p-5 rounded-2xl border border-gray-250/60 shadow-sm text-center">
+                    <div className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Broadcasting</div>
+                    <div className="text-3xl font-extrabold text-blue-600">{allJobs.filter(j => j.status === 'REQUESTED').length}</div>
+                  </div>
+                  <div className="bg-white p-5 rounded-2xl border border-gray-250/60 shadow-sm text-center">
+                    <div className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Ongoing</div>
+                    <div className="text-3xl font-extrabold text-yellow-600">{allJobs.filter(j => j.status === 'ACCEPTED' || j.status === 'IN_PROGRESS').length}</div>
+                  </div>
+                  <div className="bg-white p-5 rounded-2xl border border-gray-250/60 shadow-sm text-center">
+                    <div className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Completed</div>
+                    <div className="text-3xl font-extrabold text-green-600">{allJobs.filter(j => j.status === 'COMPLETED').length}</div>
+                  </div>
+                  <div className="bg-white p-5 rounded-2xl border border-gray-250/60 shadow-sm text-center">
+                    <div className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Cancelled</div>
+                    <div className="text-3xl font-extrabold text-red-500">{allJobs.filter(j => j.status === 'CANCELLED').length}</div>
+                  </div>
+                </div>
+
+                {/* Table list */}
+                {allJobs.length === 0 ? (
+                  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
+                    <h3 className="text-lg font-medium text-gray-900">No requests found</h3>
+                    <p className="mt-1">There are no job requests in the system yet.</p>
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Job ID</th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Category & Description</th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Customer</th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Assigned Worker</th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Price</th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Created At</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {allJobs.map(job => (
+                          <tr key={job.id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">#{job.id}</td>
+                            <td className="px-6 py-4">
+                              <div className="text-sm font-semibold text-gray-900 capitalize">{job.category}</div>
+                              <div className="text-xs text-gray-500 line-clamp-1">{job.description}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 capitalize">{job.customer.name}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {job.worker ? (
+                                <span className="capitalize">{job.worker.name}</span>
+                              ) : (
+                                <span className="text-blue-500 font-medium italic">Broadcasting (Pending Worker)</span>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">₹{job.price}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${
+                                job.status === 'REQUESTED' ? 'bg-blue-100 text-blue-800' :
+                                job.status === 'ACCEPTED' || job.status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-800' :
+                                job.status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                              }`}>
+                                {job.status}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
+                              {job.createdAt ? new Date(job.createdAt).toLocaleString() : 'N/A'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
+            )}
         </div>
       </div>
     </div>

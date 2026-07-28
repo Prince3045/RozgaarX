@@ -296,4 +296,34 @@ public class JobController {
         
         return ResponseEntity.ok(job);
     }
+
+    @PutMapping("/{id}/reject-payment")
+    public ResponseEntity<?> rejectPayment(@PathVariable Long id) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        boolean isAdmin = userDetails.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+            
+        if (!isAdmin) {
+            return ResponseEntity.status(403).body("Error: Only Administrators can reject payments!");
+        }
+
+        Job job = jobRepository.findById(id).orElseThrow();
+        
+        if (!"SUBMITTED".equals(job.getPaymentStatus())) {
+            return ResponseEntity.badRequest().body("Error: No submitted payment to reject.");
+        }
+        
+        job.setPaymentStatus("PENDING");
+        job.setUpiTxnId(null);
+        jobRepository.save(job);
+        
+        // Notify customer that their payment was rejected (needs re-submission)
+        messagingTemplate.convertAndSend("/topic/customer/" + job.getCustomer().getId(), (Object) Map.of(
+            "jobId", job.getId(),
+            "status", "PAYMENT_REJECTED",
+            "paymentStatus", "PENDING"
+        ));
+        
+        return ResponseEntity.ok(job);
+    }
 }

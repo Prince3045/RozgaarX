@@ -188,6 +188,17 @@ const CustomerDashboard = () => {
           }
           return prevJobs.map(j => j.id === update.jobId ? { ...j, status: 'COMPLETED', paymentStatus: 'APPROVED' } : j);
         });
+      } else if (update.status === 'PAYMENT_REJECTED') {
+        setShowPaymentModal(false);
+        setPaymentJob(null);
+        setPaymentSubmitted(false);
+        setUpiTxnId('');
+        alert("Your payment verification failed. Please check the UTR number and re-submit payment proof.");
+        
+        // Update local jobs list
+        setCustomerJobs(prevJobs => 
+          prevJobs.map(j => j.id === update.jobId ? { ...j, paymentStatus: 'PENDING', upiTxnId: null } : j)
+        );
       } else if (update.status === 'PRICE_PROPOSED') {
         setCustomerJobs(prevJobs => 
           prevJobs.map(j => j.id === update.jobId ? { ...j, proposedPrice: update.proposedPrice } : j)

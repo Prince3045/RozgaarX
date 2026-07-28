@@ -56,4 +56,12 @@ public class AdminController {
         List<Job> submittedJobs = jobRepository.findByPaymentStatus("SUBMITTED");
         return ResponseEntity.ok(submittedJobs);
     }
+
+    @GetMapping("/jobs")
+    public ResponseEntity<?> getAllJobs() {
+        if (!isAdmin()) return ResponseEntity.status(403).body("Access Denied");
+        
+        List<Job> allJobs = jobRepository.findAll();
+        return ResponseEntity.ok(allJobs);
+    }
 }
