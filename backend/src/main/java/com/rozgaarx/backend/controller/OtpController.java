@@ -42,9 +42,6 @@ public class OtpController {
         Otp otp = new Otp(recipient, otpCode, expiresAt);
         otpRepository.save(otp);
 
-        // Send real Email if SMTP is configured, fallback to console log
-        emailService.sendOtpEmail(recipient, otpCode);
-
         // Printing highly visible OTP message to standard output log for developer usage
         System.out.println("\n========================================================");
         System.out.println("  [OTP SERVICE] Generated OTP for RozgaarX Verification  ");
@@ -52,6 +49,15 @@ public class OtpController {
         System.out.println("  CODE:      " + otpCode);
         System.out.println("  EXPIRES:   " + expiresAt);
         System.out.println("========================================================\n");
+
+        // Send real Email — will throw if SMTP is not configured or send fails
+        try {
+            emailService.sendOtpEmail(recipient, otpCode);
+        } catch (RuntimeException e) {
+            System.err.println("[OTP CONTROLLER] Email sending failed: " + e.getMessage());
+            return ResponseEntity.internalServerError()
+                .body(new MessageResponse("Error: Could not send OTP email. " + e.getMessage()));
+        }
 
         return ResponseEntity.ok(new MessageResponse("OTP sent successfully to " + recipient));
     }

@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Upload, CheckCircle, ArrowLeft, ShieldAlert } from 'lucide-react';
+import { Upload, CheckCircle, ArrowLeft, ShieldAlert, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import { AuthContext } from '../context/AuthContext';
@@ -8,16 +8,72 @@ const WorkerRegistration = () => {
   const [step, setStep] = useState(1); // 1 for form, 2 for pending verification
   const [loading, setLoading] = useState(false);
   const [fileName, setFileName] = useState('');
+  const [coords, setCoords] = useState({ lat: null, lng: null });
+  const [detecting, setDetecting] = useState(false);
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
+
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+    setDetecting(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        setCoords({ lat: latitude, lng: longitude });
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+          const data = await res.json();
+          // Extract address components
+          const city = data.address.city || data.address.town || data.address.village || data.address.suburb || data.address.state || '';
+          const displayName = data.display_name || `${city}`;
+          // Set text input value
+          document.getElementById('location').value = displayName;
+        } catch (err) {
+          console.error("Reverse geocoding failed", err);
+          document.getElementById('location').value = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+        } finally {
+          setDetecting(false);
+        }
+      },
+      (error) => {
+        alert("Failed to get location. Please enable browser location permissions.");
+        setDetecting(false);
+      }
+    );
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    
+    let lat = coords.lat;
+    let lng = coords.lng;
+    const locationVal = e.target.location.value;
+
+    // If manual address typed, search Nominatim to resolve coordinates
+    if (!lat || !lng) {
+      try {
+        const searchRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationVal)}`);
+        const searchData = await searchRes.json();
+        if (searchData && searchData.length > 0) {
+          lat = parseFloat(searchData[0].lat);
+          lng = parseFloat(searchData[0].lon);
+        }
+      } catch (err) {
+        console.warn("Geocoding typed address failed, saving text only.", err);
+      }
+    }
+
     const formData = new FormData();
     formData.append('skill', e.target.skill.value);
     formData.append('experience', e.target.experience.value);
-    formData.append('location', e.target.location.value);
+    formData.append('location', locationVal);
+    if (lat) formData.append('latitude', lat);
+    if (lng) formData.append('longitude', lng);
+    
     const file = e.target['file-upload'].files[0];
     if (!file) {
       alert('Please upload your ID proof to continue.');
@@ -107,11 +163,24 @@ const WorkerRegistration = () => {
                   placeholder="e.g. 5" />
               </div>
 
-              <div>
+              <div className="sm:col-span-2">
                 <label htmlFor="location" className="block text-sm font-medium text-gray-700">Service Location / City</label>
-                <input type="text" name="location" id="location" required
-                  className="mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-3 px-3 border"
-                  placeholder="e.g. Mumbai, Maharashtra" />
+                <div className="mt-1 flex rounded-md shadow-sm">
+                  <div className="relative flex-grow focus-within:z-10">
+                    <input type="text" name="location" id="location" required
+                      className="focus:ring-primary-500 focus:border-primary-500 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300 py-3 px-3 border"
+                      placeholder="e.g. Bandra West, Mumbai" />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleDetectLocation}
+                    disabled={detecting}
+                    className="-ml-px relative inline-flex items-center space-x-2 px-4 py-2 border border-gray-300 text-sm font-medium rounded-r-md text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors disabled:opacity-50"
+                  >
+                    <MapPin className="h-4 w-4 text-gray-400" />
+                    <span>{detecting ? 'Detecting...' : 'Detect Location'}</span>
+                  </button>
+                </div>
               </div>
 
               <div className="sm:col-span-2">

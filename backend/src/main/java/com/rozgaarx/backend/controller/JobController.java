@@ -50,6 +50,12 @@ public class JobController {
         job.setDescription(payload.get("description"));
         job.setCategory(payload.get("category"));
         job.setLocation(payload.get("location"));
+        if (payload.containsKey("latitude") && payload.get("latitude") != null && !payload.get("latitude").trim().isEmpty()) {
+            job.setLatitude(Double.parseDouble(payload.get("latitude")));
+        }
+        if (payload.containsKey("longitude") && payload.get("longitude") != null && !payload.get("longitude").trim().isEmpty()) {
+            job.setLongitude(Double.parseDouble(payload.get("longitude")));
+        }
         if (payload.containsKey("price") && payload.get("price") != null && !payload.get("price").isEmpty()) {
             job.setPrice(Integer.parseInt(payload.get("price")));
         }
@@ -87,6 +93,17 @@ public class JobController {
         return ResponseEntity.ok(job);
     }
 
+    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+        double earthRadius = 6371; // km
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return earthRadius * c;
+    }
+
     @GetMapping("/pending")
     public ResponseEntity<List<Job>> getPendingJobs() {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -97,10 +114,24 @@ public class JobController {
         
         List<Job> allRequested = jobRepository.findByStatus(JobStatus.REQUESTED);
         List<Job> matchingJobs = allRequested.stream()
-            .filter(job -> job.getCategory() != null && worker.getSkill() != null 
-                && job.getCategory().equalsIgnoreCase(worker.getSkill()) 
-                && job.getLocation() != null && worker.getLocation() != null 
-                && worker.getLocation().toLowerCase().contains(job.getLocation().toLowerCase()))
+            .filter(job -> {
+                if (job.getCategory() == null || worker.getSkill() == null 
+                        || !job.getCategory().equalsIgnoreCase(worker.getSkill())) {
+                    return false;
+                }
+                
+                // Radius match
+                if (job.getLatitude() != null && job.getLongitude() != null 
+                        && worker.getLatitude() != null && worker.getLongitude() != null) {
+                    double dist = calculateDistance(job.getLatitude(), job.getLongitude(), 
+                                                    worker.getLatitude(), worker.getLongitude());
+                    return dist <= 10.0;
+                }
+                
+                // Fallback to text match
+                return job.getLocation() != null && worker.getLocation() != null 
+                    && worker.getLocation().toLowerCase().contains(job.getLocation().toLowerCase());
+            })
             .toList();
             
         return ResponseEntity.ok(matchingJobs);

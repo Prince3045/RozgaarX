@@ -12,5 +12,6 @@ public interface WorkerProfileRepository extends JpaRepository<WorkerProfile, Lo
     List<WorkerProfile> findByIsActiveTrue();
     List<WorkerProfile> findByLocationContainingIgnoreCaseAndIsActiveTrue(String location);
     List<WorkerProfile> findBySkillIgnoreCaseAndLocationContainingIgnoreCaseAndIsActiveTrue(String skill, String location);
+    List<WorkerProfile> findBySkillIgnoreCaseAndIsActiveTrue(String skill);
     List<WorkerProfile> findByVerificationStatus(VerificationStatus status);
 }

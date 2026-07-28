@@ -9,9 +9,42 @@ const CustomerDashboard = () => {
   const { user } = useContext(AuthContext);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [location, setLocation] = useState('');
+  const [coords, setCoords] = useState({ lat: null, lng: null });
+  const [detecting, setDetecting] = useState(false);
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [bookingStatus, setBookingStatus] = useState(null); // null, 'searching', 'assigned'
+
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+    setDetecting(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        setCoords({ lat: latitude, lng: longitude });
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+          const data = await res.json();
+          // Extract address components
+          const city = data.address.city || data.address.town || data.address.village || data.address.suburb || data.address.state || '';
+          const displayName = data.display_name || `${city}`;
+          setLocation(displayName);
+        } catch (err) {
+          console.error("Reverse geocoding failed", err);
+          setLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+        } finally {
+          setDetecting(false);
+        }
+      },
+      (error) => {
+        alert("Failed to get location. Please enable browser location permissions.");
+        setDetecting(false);
+      }
+    );
+  };
   const [assignedWorkerDetails, setAssignedWorkerDetails] = useState(null);
   const [customerJobs, setCustomerJobs] = useState([]);
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -267,6 +300,24 @@ const CustomerDashboard = () => {
     }
 
     setBookingStatus('searching');
+    
+    let lat = coords.lat;
+    let lng = coords.lng;
+
+    // If manual address typed, search Nominatim to resolve coordinates
+    if (!lat || !lng) {
+      try {
+        const searchRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`);
+        const searchData = await searchRes.json();
+        if (searchData && searchData.length > 0) {
+          lat = parseFloat(searchData[0].lat);
+          lng = parseFloat(searchData[0].lon);
+        }
+      } catch (err) {
+        console.warn("Geocoding typed address failed, saving text only.", err);
+      }
+    }
+
     try {
       const categoryLabel = CATEGORIES.find(c => c.id === selectedCategory)?.label || selectedCategory;
       const fullDescription = `[${categoryLabel}] - ${description}`;
@@ -275,7 +326,9 @@ const CustomerDashboard = () => {
         description: fullDescription,
         category: selectedCategory,
         location: location,
-        price: price
+        price: price,
+        latitude: lat ? lat.toString() : null,
+        longitude: lng ? lng.toString() : null
       });
 
       // Subscribe to job updates
@@ -283,18 +336,21 @@ const CustomerDashboard = () => {
         const update = JSON.parse(message.body);
         if (update.jobId === response.data.id) {
           if (update.status === 'ACCEPTED') {
-            setAssignedWorkerDetails(update);
-            setBookingStatus('assigned');
-            subscription.unsubscribe();
+             setAssignedWorkerDetails(update);
+             setBookingStatus('assigned');
+             subscription.unsubscribe();
+             setCoords({ lat: null, lng: null });
           } else if (update.status === 'CANCELLED') {
-            setBookingStatus('cancelled');
-            subscription.unsubscribe();
+             setBookingStatus('cancelled');
+             subscription.unsubscribe();
+             setCoords({ lat: null, lng: null });
           }
         }
       });
     } catch (err) {
       alert('Failed to broadcast request: ' + (err.response?.data?.message || err.message));
       setBookingStatus(null);
+      setCoords({ lat: null, lng: null });
     }
   };
 
@@ -339,17 +395,28 @@ const CustomerDashboard = () => {
             {/* Location Input */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">2. Your Location</label>
-              <div className="relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <MapPin className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+              <div className="flex rounded-xl shadow-sm bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500 transition-colors">
+                <div className="relative flex-grow flex items-center">
+                  <div className="absolute left-4 pointer-events-none">
+                    <MapPin className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                  </div>
+                  <input
+                    type="text"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="focus:outline-none block w-full pl-12 pr-4 py-4 sm:text-base bg-transparent text-gray-900 dark:text-white border-0"
+                    placeholder="e.g. Bandra West, Mumbai"
+                  />
                 </div>
-                <input
-                  type="text"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="focus:ring-primary-500 focus:border-primary-500 block w-full pl-12 py-4 sm:text-base border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border transition-colors"
-                  placeholder="e.g. Bandra West, Mumbai"
-                />
+                <button
+                  type="button"
+                  onClick={handleDetectLocation}
+                  disabled={detecting}
+                  className="px-5 py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold hover:bg-gray-800 dark:hover:bg-gray-100 disabled:bg-gray-300 dark:disabled:bg-gray-850 transition-colors shrink-0 flex items-center space-x-1.5 text-sm sm:text-base"
+                >
+                  <MapPin className="h-4 w-4 text-current" />
+                  <span>{detecting ? 'Detecting...' : 'Detect'}</span>
+                </button>
               </div>
             </div>
 

@@ -16,16 +16,28 @@ public class EmailService {
     @Value("${spring.mail.username:DEVELOPER_TEST}")
     private String mailUsername;
 
+    /**
+     * Sends an OTP verification email.
+     * Throws a RuntimeException if email cannot be sent (SMTP not configured, or send failure).
+     */
     public void sendOtpEmail(String toEmail, String otpCode) {
-        if ("DEVELOPER_TEST".equals(mailUsername) || mailUsername.trim().isEmpty() || mailSender == null) {
-            System.out.println("\n[EMAIL SERVICE - MOCK MODE] Real email not sent. Configure SMTP credentials in application.properties or .env.");
-            return;
+        // Check if SMTP is actually configured
+        if ("DEVELOPER_TEST".equals(mailUsername) || mailUsername == null || mailUsername.trim().isEmpty()) {
+            System.out.println("\n[EMAIL SERVICE - NOT CONFIGURED] SMTP credentials are not set.");
+            System.out.println("[EMAIL SERVICE] Set SPRING_MAIL_USERNAME and SPRING_MAIL_PASSWORD in your .env file to enable real email sending.");
+            throw new RuntimeException("Email sending is not configured. Please set SMTP credentials in the backend .env file.");
+        }
+
+        if (mailSender == null) {
+            System.err.println("[EMAIL SERVICE] JavaMailSender bean is null — Spring Mail auto-configuration may have failed.");
+            throw new RuntimeException("Email service is unavailable. Mail sender could not be initialized.");
         }
 
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            helper.setFrom(mailUsername);
             helper.setTo(toEmail);
             helper.setSubject("RozgaarX - Your OTP Verification Code");
 
@@ -60,8 +72,9 @@ public class EmailService {
 
             System.out.println("[EMAIL SERVICE] Real OTP email successfully sent to: " + toEmail);
         } catch (Exception e) {
-            System.err.println("[EMAIL SERVICE] Failed to send real OTP email: " + e.getMessage());
+            System.err.println("[EMAIL SERVICE] Failed to send OTP email to " + toEmail + ": " + e.getMessage());
             e.printStackTrace();
+            throw new RuntimeException("Failed to send OTP email: " + e.getMessage(), e);
         }
     }
 }
