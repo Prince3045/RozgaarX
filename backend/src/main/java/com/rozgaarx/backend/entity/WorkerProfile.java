@@ -17,6 +17,8 @@ public class WorkerProfile {
     private String skill;
     private Integer experience;
     private String location;
+    private Double latitude;
+    private Double longitude;
     private String idProofUrl;
 
     private Boolean isActive = false;
@@ -42,6 +44,12 @@ public class WorkerProfile {
     
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
+    
+    public Double getLatitude() { return latitude; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
+    
+    public Double getLongitude() { return longitude; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
     
     public String getIdProofUrl() { return idProofUrl; }
     public void setIdProofUrl(String idProofUrl) { this.idProofUrl = idProofUrl; }

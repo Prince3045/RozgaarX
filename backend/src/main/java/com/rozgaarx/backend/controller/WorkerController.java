@@ -38,6 +38,8 @@ public class WorkerController {
             @RequestParam("skill") String skill,
             @RequestParam("experience") Integer experience,
             @RequestParam("location") String location,
+            @RequestParam(value = "latitude", required = false) Double latitude,
+            @RequestParam(value = "longitude", required = false) Double longitude,
             @RequestParam(value = "idProof", required = false) MultipartFile idProof) {
             
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -48,6 +50,8 @@ public class WorkerController {
         profile.setSkill(skill);
         profile.setExperience(experience);
         profile.setLocation(location);
+        profile.setLatitude(latitude);
+        profile.setLongitude(longitude);
         
         if (idProof != null && !idProof.isEmpty()) {
             try {
@@ -55,7 +59,9 @@ public class WorkerController {
                 if (!Files.exists(uploadPath)) {
                     Files.createDirectories(uploadPath);
                 }
-                String filename = user.getId() + "_" + idProof.getOriginalFilename();
+                String originalFilename = idProof.getOriginalFilename();
+                String cleanFilename = Paths.get(originalFilename != null ? originalFilename : "id_proof").getFileName().toString();
+                String filename = user.getId() + "_" + cleanFilename;
                 Path filePath = uploadPath.resolve(filename);
                 Files.copy(idProof.getInputStream(), filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                 profile.setIdProofUrl(filename);

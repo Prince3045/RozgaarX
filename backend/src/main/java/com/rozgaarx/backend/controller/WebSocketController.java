@@ -69,17 +69,45 @@ public class WebSocketController {
         }
     }
 
+    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+        double earthRadius = 6371; // km
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return earthRadius * c;
+    }
+
+    private List<WorkerProfile> getWorkersNearJob(Job job) {
+        List<WorkerProfile> activeWorkers = workerProfileRepository.findBySkillIgnoreCaseAndIsActiveTrue(job.getCategory());
+        return activeWorkers.stream()
+            .filter(worker -> {
+                // Coordinate-based 10km radius
+                if (job.getLatitude() != null && job.getLongitude() != null 
+                        && worker.getLatitude() != null && worker.getLongitude() != null) {
+                    double dist = calculateDistance(job.getLatitude(), job.getLongitude(), 
+                                                    worker.getLatitude(), worker.getLongitude());
+                    return dist <= 10.0;
+                }
+                
+                // Fallback to text match
+                return job.getLocation() != null && worker.getLocation() != null 
+                    && worker.getLocation().toLowerCase().contains(job.getLocation().toLowerCase());
+            })
+            .toList();
+    }
+
     public void broadcastJobToNearbyWorkers(Job job) {
-        List<WorkerProfile> nearbyWorkers = workerProfileRepository.findBySkillIgnoreCaseAndLocationContainingIgnoreCaseAndIsActiveTrue(
-                job.getCategory(), job.getLocation());
+        List<WorkerProfile> nearbyWorkers = getWorkersNearJob(job);
         for (WorkerProfile worker : nearbyWorkers) {
             messagingTemplate.convertAndSend("/queue/worker/" + worker.getUser().getId(), job);
         }
     }
 
     public void notifyWorkersOfCancellation(Job job) {
-        List<WorkerProfile> nearbyWorkers = workerProfileRepository.findBySkillIgnoreCaseAndLocationContainingIgnoreCaseAndIsActiveTrue(
-                job.getCategory(), job.getLocation());
+        List<WorkerProfile> nearbyWorkers = getWorkersNearJob(job);
         for (WorkerProfile worker : nearbyWorkers) {
             messagingTemplate.convertAndSend("/queue/worker/" + worker.getUser().getId(), 
                 (Object) Map.of("id", job.getId(), "status", "CANCELLED"));
@@ -109,6 +137,9 @@ public class WebSocketController {
 
     @MessageMapping("/job/location")
     public void shareLocation(@Payload Map<String, Object> payload) {
+        if (payload == null || payload.get("jobId") == null || payload.get("lat") == null || payload.get("lng") == null) {
+            return;
+        }
         Long jobId = Long.valueOf(payload.get("jobId").toString());
         Double lat = Double.valueOf(payload.get("lat").toString());
         Double lng = Double.valueOf(payload.get("lng").toString());
