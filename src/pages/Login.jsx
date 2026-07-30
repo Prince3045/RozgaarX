@@ -39,6 +39,7 @@ const Login = () => {
         navigate('/worker-dashboard', { replace: true });
       }
     } catch (err) {
+      console.error('Login submit error:', err);
       alert('Login failed. Please check credentials.');
     }
   };

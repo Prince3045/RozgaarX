@@ -13,8 +13,12 @@ export const AuthProvider = ({ children }) => {
     if (storedUser && token) {
       const userData = JSON.parse(storedUser);
       setUser(userData);
-      // Connect to WebSocket
-      webSocketService.connect(userData.id, token);
+      // Connect to WebSocket safely
+      try {
+        webSocketService.connect(userData.id, token);
+      } catch (err) {
+        console.error("Failed to connect to WebSocket on load:", err);
+      }
     }
     setLoading(false);
   }, []);
@@ -23,8 +27,12 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(userData));
     localStorage.setItem('token', userData.token);
     setUser(userData);
-    // Connect to WebSocket
-    webSocketService.connect(userData.id, userData.token);
+    // Connect to WebSocket safely
+    try {
+      webSocketService.connect(userData.id, userData.token);
+    } catch (err) {
+      console.error("Failed to connect to WebSocket on login:", err);
+    }
   };
 
   const logout = () => {
