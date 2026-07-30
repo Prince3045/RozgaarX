@@ -14,7 +14,10 @@ class WebSocketService {
     // Prevent duplicate connections
     if (this.stompClient && this.connected) return;
 
-    const socket = new SockJS(import.meta.env.VITE_WS_URL || 'http://localhost:8081/ws');
+    let wsUrl = import.meta.env.VITE_WS_URL || 'http://localhost:8081/ws';
+    // SockJS client requires http:// or https:// schemes. If ws:// or wss:// is provided, replace it.
+    wsUrl = wsUrl.replace(/^ws(s)?:\/\//i, 'http$1://');
+    const socket = new SockJS(wsUrl);
     this.stompClient = Stomp.over(socket);
 
     // Disable logging in production if needed, or leave enabled for development debugging
