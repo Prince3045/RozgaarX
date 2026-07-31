@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 💼 RozgaarX - Next-Gen On-Demand Service Marketplace
 
 RozgaarX is a robust, production-ready, full-stack marketplace application designed to connect local service providers (workers) with customers in real-time. Built with a focus on high performance, secure role-based operations, and micro-interaction-rich user experience.
@@ -40,10 +39,11 @@ The platform utilizes **Spring Boot** for a high-performance, stateless REST bac
 
 ### Backend (Spring Boot Core)
 * **Framework**: Spring Boot (Java 17+)
+* **Build System**: Maven (via Maven Wrapper `./mvnw`)
 * **Security**: Spring Security, JWT (JJWT Library)
 * **Persistence Layer**: Spring Data JPA, Hibernate ORM
 * **Real-time Messaging**: Spring WebSocket Message Broker
-* **Database**: MySQL (optimized indexing for location/category-based queries)
+* **Database**: MySQL / SQLite (optimized indexing for location/category-based queries)
 
 ---
 
@@ -55,11 +55,11 @@ Rozgaarx/
 │   ├── src/main/java/             # Java source code (MVC structure)
 │   │   └── com/rozgaarx/backend/
 │   │       ├── controller/        # REST Controllers (API entrypoints)
-│   │       ├── entity/            # JPA Data Entities (MySQL Schemas)
+│   │       ├── entity/            # JPA Data Entities (MySQL/SQLite Schemas)
 │   │       ├── repository/        # Spring Data Repositories
 │   │       ├── security/          # Spring Security & JWT filters
 │   │       └── payload/           # Request/Response DTO models
-│   ├── build.gradle               # Backend dependency configurations
+│   ├── pom.xml                    # Backend Maven configurations
 │   └── uploads/                   # Secure storage for worker verification proofs
 │
 ├── src/                           # React Frontend (Vite)
@@ -80,7 +80,7 @@ Follow these steps to deploy RozgaarX locally for development and testing:
 ### Prerequisites
 * **Java**: JDK 17 or higher installed.
 * **Node.js**: Node.js v18.x or v20.x installed.
-* **Database**: MySQL Server 8.0+ running locally.
+* **Database**: MySQL Server 8.0+ running locally (or fallback to SQLite).
 
 ---
 
@@ -103,11 +103,11 @@ Follow these steps to deploy RozgaarX locally for development and testing:
    ```bash
    # On macOS/Linux
    cd backend
-   ./gradlew bootRun
+   ./mvnw spring-boot:run
    
    # On Windows
    cd backend
-   .\gradlew bootRun
+   .\mvnw.cmd spring-boot:run
    ```
    *The Spring Boot server will initialize and listen on port **`8081`**.*
 
@@ -140,7 +140,3 @@ To test the role-based flows immediately, use these default system credentials:
 
 ## 🛡️ License
 This project is open-source and licensed under the [MIT License](LICENSE).
-=======
-# RozgaarX
-RozgaarX is a modern full-stack service marketplace connecting workers with customers in real-time. Built with Spring Boot (Java), React (Vite), MySQL, and Tailwind CSS. Features real-time WebSocket notifications, smart location-based routing, and a secure admin verification portal
->>>>>>> 1f27c24a0914e1aac24aa1b8eec200db6033cd65
