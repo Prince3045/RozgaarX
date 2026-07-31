@@ -130,7 +130,8 @@ public class JobController {
                 
                 // Fallback to text match
                 return job.getLocation() != null && worker.getLocation() != null 
-                    && worker.getLocation().toLowerCase().contains(job.getLocation().toLowerCase());
+                    && (worker.getLocation().toLowerCase().contains(job.getLocation().toLowerCase())
+                        || job.getLocation().toLowerCase().contains(worker.getLocation().toLowerCase()));
             })
             .toList();
             
