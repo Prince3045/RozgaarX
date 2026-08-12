@@ -132,7 +132,6 @@ To test the role-based flows immediately, use these default system credentials:
 
 | Role | Email | Password | Access Capabilities |
 | :--- | :--- | :--- | :--- |
-| **System Administrator** | `admin@rozgaarx.com` | `Admin@123` | Worker vetting, full marketplace audit, system metrics |
 | **Demo Customer** | `customer@rozgaarx.com` | `Customer@123` | Post jobs, search local workers, check history |
 | **Demo Worker** | `worker@rozgaarx.com` | `Worker@123` | Accept/decline jobs, manage schedule, service tags |
 
