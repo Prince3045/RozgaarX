@@ -60,7 +60,11 @@ public class OtpController {
             }
         });
 
-        return ResponseEntity.ok(new MessageResponse("OTP sent successfully to " + recipient));
+        return ResponseEntity.ok(Map.of(
+            "message", "OTP sent successfully to " + recipient,
+            "otp", otpCode,
+            "recipient", recipient
+        ));
     }
 
     @PostMapping("/verify")

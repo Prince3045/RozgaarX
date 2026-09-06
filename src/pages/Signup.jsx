@@ -38,11 +38,16 @@ const Signup = () => {
     setOtpLoading(true);
     setOtpSent(true); // Open OTP input box immediately so user is never stuck on Sending...
     try {
-      await api.post('/auth/otp/send', { recipient: email });
-      alert('OTP sent! Please check your email inbox or Render dashboard Logs tab for the code.');
+      const res = await api.post('/auth/otp/send', { recipient: email });
+      if (res.data?.otp) {
+        setOtpCode(res.data.otp);
+        alert(`OTP Generated: ${res.data.otp}\n\n(Verification code auto-filled! Click 'Verify Code' to confirm)`);
+      } else {
+        alert('OTP sent! Please check your email inbox or Render dashboard Logs tab for the code.');
+      }
     } catch (error) {
       console.warn('OTP network status:', error);
-      alert('OTP generated! If email is delayed, please check your Render dashboard Logs tab for the 6-digit code and enter it below.');
+      alert('OTP request generated! If email is delayed, please check your Render dashboard Logs tab for the 6-digit code and enter it below.');
     } finally {
       setOtpLoading(false);
     }
