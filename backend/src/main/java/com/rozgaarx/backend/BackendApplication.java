@@ -57,18 +57,31 @@ public class BackendApplication {
 
 
 	@Bean
-	CommandLineRunner initAdmin(UserRepository userRepository, PasswordEncoder encoder) {
+	CommandLineRunner initAdmin(
+			UserRepository userRepository, 
+			PasswordEncoder encoder,
+			@org.springframework.beans.factory.annotation.Value("${ADMIN_EMAIL:${admin.email:admin@rozgaarx.com}}") String adminEmail,
+			@org.springframework.beans.factory.annotation.Value("${ADMIN_PASSWORD:${admin.password:}}") String adminPassword
+	) {
 		return args -> {
-			if (!userRepository.existsByEmail("admin@rozgaarx.com")) {
-				User admin = new User(
-						"System Admin",
-						"+910000000000",
-						"admin@rozgaarx.com",
-						encoder.encode("Admin@123"),
-						Role.ADMIN
-				);
-				userRepository.save(admin);
-				System.out.println("Default Admin created: admin@rozgaarx.com / Admin@123");
+			if (adminPassword != null && !adminPassword.trim().isEmpty()) {
+				java.util.Optional<User> existingAdmin = userRepository.findByEmail(adminEmail);
+				if (existingAdmin.isPresent()) {
+					User admin = existingAdmin.get();
+					admin.setPassword(encoder.encode(adminPassword.trim()));
+					userRepository.save(admin);
+					System.out.println("[SECURITY] Admin credentials updated from environment configuration.");
+				} else {
+					User admin = new User(
+							"System Admin",
+							"+910000000000",
+							adminEmail,
+							encoder.encode(adminPassword.trim()),
+							Role.ADMIN
+					);
+					userRepository.save(admin);
+					System.out.println("[SECURITY] Admin user initialized securely from environment configuration.");
+				}
 			}
 		};
 	}
