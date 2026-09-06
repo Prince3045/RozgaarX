@@ -32,8 +32,8 @@ public class OtpController {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Recipient (phone/email) is required!"));
         }
 
-        // Generate 6-digit OTP
-        int otpCodeInt = 100000 + random.nextInt(900000);
+        // Generate 6-digit OTP using non-blocking random
+        int otpCodeInt = java.util.concurrent.ThreadLocalRandom.current().nextInt(100000, 1000000);
         String otpCode = String.valueOf(otpCodeInt);
 
         // Set expiry time to 5 minutes from now
@@ -50,13 +50,15 @@ public class OtpController {
         System.out.println("  EXPIRES:   " + expiresAt);
         System.out.println("========================================================\n");
 
-        // Send real Email with fallback so cloud network blocks don't hang or fail signup
-        try {
-            emailService.sendOtpEmail(recipient, otpCode);
-        } catch (Exception e) {
-            System.err.println("[OTP CONTROLLER] Email sending failed (SMTP network block): " + e.getMessage());
-            System.out.println("[OTP CONTROLLER] FALLBACK: OTP " + otpCode + " is active in database and can be verified!");
-        }
+        // Send real Email in background thread so HTTP response returns instantly (never hangs UI)
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            try {
+                emailService.sendOtpEmail(recipient, otpCode);
+                System.out.println("[OTP SERVICE] Email sent successfully to " + recipient);
+            } catch (Exception e) {
+                System.err.println("[OTP CONTROLLER] Background email delivery failed: " + e.getMessage());
+            }
+        });
 
         return ResponseEntity.ok(new MessageResponse("OTP sent successfully to " + recipient));
     }
