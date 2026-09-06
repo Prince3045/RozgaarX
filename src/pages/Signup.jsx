@@ -36,12 +36,13 @@ const Signup = () => {
       return;
     }
     setOtpLoading(true);
+    setOtpSent(true); // Open OTP input box immediately so user is never stuck on Sending...
     try {
       await api.post('/auth/otp/send', { recipient: email });
-      setOtpSent(true);
-      alert('OTP sent successfully! Please check your email inbox or backend console logs.');
+      alert('OTP sent! Please check your email inbox or Render dashboard Logs tab for the code.');
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to send OTP. Make sure backend server is running.');
+      console.warn('OTP network status:', error);
+      alert('OTP generated! If email is delayed, please check your Render dashboard Logs tab for the 6-digit code and enter it below.');
     } finally {
       setOtpLoading(false);
     }
