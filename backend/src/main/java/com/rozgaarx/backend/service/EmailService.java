@@ -25,6 +25,9 @@ public class EmailService {
     @Value("${BREVO_API_KEY:${brevo.api.key:}}")
     private String brevoApiKey;
 
+    @Value("${BREVO_SENDER_EMAIL:${brevo.sender.email:}}")
+    private String brevoSenderEmail;
+
     @Value("${RESEND_API_KEY:${resend.api.key:}}")
     private String resendApiKey;
 
@@ -59,7 +62,14 @@ public class EmailService {
     }
 
     private void sendViaBrevoApi(String toEmail, String otpCode, String apiKey) throws Exception {
-        String senderEmail = (mailUsername != null && mailUsername.contains("@")) ? mailUsername : "pg387933@gmail.com";
+        String senderEmail = "pg387933@gmail.com";
+        if (brevoSenderEmail != null && !brevoSenderEmail.trim().isEmpty()) {
+            senderEmail = brevoSenderEmail.trim();
+        } else if (mailUsername != null && mailUsername.contains("@")) {
+            senderEmail = mailUsername.trim();
+        }
+        
+        System.out.println("[EMAIL SERVICE] Sending Brevo API email from: " + senderEmail + " to: " + toEmail);
         String htmlContent = buildHtmlEmail(otpCode);
 
         // Escape JSON string for htmlContent
